@@ -1,6 +1,11 @@
 import moment from 'moment';
 import 'moment/locale/ru';
 
+/**
+ * Компонент отвечающий за вывод календаря
+ *
+ * @param {object} props.date Объект текущей даты.
+ */
 function Calendar(props) {
   const { date } = props;
   const months = [
@@ -20,8 +25,14 @@ function Calendar(props) {
 
   moment.updateLocale('ru', { week: { dow: 1 } });
   const startDay = moment().startOf('month').startOf('week');
+  const startDayGetTime = new Date(startDay).getTime();
 
   const endDay = moment().endOf('month').endOf('week');
+  const endDayGetTime = new Date(endDay).getTime();
+
+  const monthDuration = Math.round(
+    (endDayGetTime - startDayGetTime) / 1000 / 60 / 60 / 24
+  );
 
   const tableCalendar = [];
   const day = startDay.clone();
@@ -31,8 +42,8 @@ function Calendar(props) {
     day.add(1, 'day');
   }
 
-  const rows = 6;
   const cols = 7;
+  const rows = Math.ceil(monthDuration / cols);
 
   let tbody = [];
   let tr;
@@ -42,17 +53,33 @@ function Calendar(props) {
     tr = [];
     for (let j = 0; j < cols; j++) {
       if (tableCalendar[count].format('MM') !== moment(date).format('MM')) {
-        tr.push(<td className="ui-datepicker-other-month">{tableCalendar[count].format('DD')}</td>);
-      } else if (tableCalendar[count].format('DD') === moment(date).format('DD')){
-        tr.push(<td className="ui-datepicker-today">{tableCalendar[count].format('DD')}</td>);
+        tr.push(
+          <td
+            className="ui-datepicker-other-month"
+            key={Math.random().toString()}
+          >
+            {tableCalendar[count].format('DD')}
+          </td>
+        );
+      } else if (
+        tableCalendar[count].format('DD') === moment(date).format('DD')
+      ) {
+        tr.push(
+          <td className="ui-datepicker-today" key={Math.random().toString()}>
+            {tableCalendar[count].format('DD')}
+          </td>
+        );
       } else {
-        tr.push(<td>{tableCalendar[count].format('DD')}</td>)
+        tr.push(
+          <td key={Math.random().toString()}>
+            {tableCalendar[count].format('DD')}
+          </td>
+        );
       }
-      count++
+      count++;
     }
-    tbody.push(<tr>{tr}</tr>)
+    tbody.push(<tr key={Math.random().toString()}>{tr}</tr>);
   }
-
 
   return (
     <div className="ui-datepicker">
@@ -120,9 +147,7 @@ function Calendar(props) {
             </th>
           </tr>
         </thead>
-        <tbody>
-          {tbody}
-        </tbody>
+        <tbody>{tbody}</tbody>
       </table>
     </div>
   );
